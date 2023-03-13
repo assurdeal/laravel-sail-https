@@ -7,54 +7,102 @@
 
 This package allows you to use HTTPS in your Laravel Sail development environment.
 
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
-
 ## Installation
 
 You can install the package via composer:
 
 ```bash
-composer require :vendor_slug/:package_slug
-```
-
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag=":package_slug-migrations"
-php artisan migrate
+composer require assurdeal/sail-https --dev
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag=":package_slug-config"
-```
-
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag=":package_slug-views"
+php artisan vendor:publish --tag="sail-https-config"
 ```
 
 ## Usage
 
-```php
-$variable = new VendorName\Skeleton();
-echo $variable->echoPhrase('Hello, VendorName!');
+Add your authorized domains to your `.env` file:
+
+```dotenv   
+SAIL_HTTPS_AUTHORIZED_DOMAINS=example.text,example2.test
 ```
+
+Add the following to your `docker-compose.yml` file:
+
+```yaml 
+volumes:
+  sail-caddy:
+    driver: local
+```
+
+```yaml
+### Caddy Server reverse proxy ############################
+caddy:
+  image: caddy:latest
+  restart: unless-stopped
+  ports:
+    - '${APP_PORT:-80}:80'
+    - '${APP_SSL_PORT:-443}:443'
+  volumes:
+    - './vendor/assurdeal/sail-https/.docker/caddy/Caddyfile:/etc/caddy/Caddyfile'
+    - sail-caddy:/data
+    - sail-caddy:/config
+  networks:
+    - sail
+```
+
+## Set up SSL certificate
+
+First get the Caddy container ID
+
+```bash
+docker ps | grep caddy
+```
+
+Then copy the Certificate from the Container
+
+```bash
+docker cp {container_id}:/config/caddy/pki/authorities/local/root.crt ~/Desktop
+```
+
+### MacOS
+Finally, open up "Keychain Access.app" and drag and drop the certificate into the "login" keychain. Open the 
+certificate (it should be called something like "Caddy Local Authority") and configure it to "Always Trust".
+
+### Windows
+1) To add, use the command:
+certutil -addstore -f "ROOT" root.crt
+
+2) To remove, use the command:
+certutil -delstore "ROOT" serial-number-hex
+
+### Linux (Ubuntu, Debian)
+1) To add:
+    - Copy your CA to dir `/usr/local/share/ca-certificates/`
+    - Use command: `sudo cp root.crt /usr/local/share/ca-certificates/root.crt`
+    - Update the CA store: `sudo update-ca-certificates`
+2) To remove:
+    - Remove your CA.
+    - Update the CA store: `sudo update-ca-certificates --fresh`
+
+<b>Note:</b> Restart Kerio Connect to reload the certificates in the 32-bit versions or Debian 7.
+
+### Linux (CentOs 6)
+
+1) Install the ca-certificates package: `yum install ca-certificates`
+2) Enable the dynamic CA configuration feature: `update-ca-trust force-enable`
+3) Add it as a new file to /etc/pki/ca-trust/source/anchors/: `cp root.crt /etc/pki/ca-trust/source/anchors/`
+4) Use command: `update-ca-trust extract`
+
+### Linux (CentOs 5)
+
+Append your trusted certificate to file /etc/pki/tls/certs/ca-bundle.crt
+
+`cat root.crt >>/etc/pki/tls/certs/ca-bundle.crt`
+
+<b>Note:</b> Restart Kerio Connect to reload the certificates in the 32-bit version.
 
 ## Testing
 
@@ -62,22 +110,15 @@ echo $variable->echoPhrase('Hello, VendorName!');
 composer test
 ```
 
-## Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
 ## Credits
+Big Thanks to all developers who worked hard to create something amazing!
 
-- [:author_name](https://github.com/:author_username)
-- [All Contributors](../../contributors)
+## Creator
+[![Percy Mamedy](https://img.shields.io/badge/Author-Percy%20Mamedy-orange.svg)](https://twitter.com/PercyMamedy)
+
+Twitter: [@PercyMamedy](https://twitter.com/PercyMamedy)
+<br/>
+GitHub: [percymamedy](https://github.com/percymamedy)
 
 ## License
 

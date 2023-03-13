@@ -1,0 +1,22 @@
+name: Test PHP code style
+
+on:
+  push:
+    paths:
+      - '**.php'
+
+jobs:
+  php-code-styling:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Fix PHP code style issues
+        uses: aglipanci/laravel-pint-action@2.1.0
+        with:
+          verboseMode: true
+          testMode: true

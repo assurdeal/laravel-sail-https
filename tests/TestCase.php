@@ -2,8 +2,8 @@
 
 namespace Assurdeal\SailHttps\Tests;
 
-use Orchestra\Testbench\TestCase as Orchestra;
 use Assurdeal\SailHttps\SailHttpsServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
@@ -22,7 +22,13 @@ class TestCase extends Orchestra
      */
     public function getEnvironmentSetUp($app): void
     {
-        config()->set('database.default', 'testing');
-
+        config()->set([
+            'sail-https' => [
+                'enabled' => true,
+                'authorized_domains' => [
+                    'example.test',
+                ],
+            ],
+        ]);
     }
 }
