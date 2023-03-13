@@ -18,7 +18,6 @@
         "nunomaduro/collision": "^5.0|^6.0|^7.9",
         "orchestra/testbench": "^7.0|^8.0",
         "pestphp/pest": "^1.0|^2.0",
-        "pestphp/pest-plugin-arch": "^1.0|^2.0",
         "pestphp/pest-plugin-laravel": "^1.0|^2.0"
     },
     "autoload": {
