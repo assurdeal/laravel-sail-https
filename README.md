@@ -43,7 +43,6 @@ caddy:
   image: caddy:latest
   restart: unless-stopped
   ports:
-    - '${APP_PORT:-80}:80'
     - '${APP_SSL_PORT:-443}:443'
   volumes:
     - './vendor/assurdeal/sail-https/.docker/caddy/Caddyfile:/etc/caddy/Caddyfile'
